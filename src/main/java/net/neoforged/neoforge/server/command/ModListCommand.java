@@ -18,7 +18,7 @@ class ModListCommand {
         return Commands.literal("mods")
                 .requires(cs -> cs.hasPermission(0)) //permission
                 .executes(ctx -> {
-                    ctx.getSource().sendSuccess(() -> Component.translatable("commands.neoforge.mods.list",
+                    ctx.getSource().sendSuccess(() -> Component.translatableWithFallback("commands.neoforge.mods.list", "Mod List: %1$s",
                             ModList.get().applyForEachModFile(modFile ->
                     // locator - filename : firstmod (version) - numberofmods\n
                     String.format(Locale.ROOT, "%s : %s (%s) - %d %s",

@@ -72,21 +72,24 @@ class TPSCommand {
         MutableComponent component;
 
         if (dimension == null) {
-            component = Component.translatable("commands.neoforge.tps.overall", tpsComponent, tickTimeComponent);
+            component = Component.translatableWithFallback("commands.neoforge.tps.overall", "Overall: %s TPS (%s ms/tick)", tpsComponent, tickTimeComponent);
         } else {
             var dimensionType = dimension.dimensionTypeRegistration();
 
             var dimensionName = Component.empty().append(dimension.getDescription()).withStyle(style -> style
                     .withColor(ChatFormatting.GREEN)
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(
-                            "commands.neoforge.tps.dimension.tooltip",
+                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatableWithFallback(
+                            "commands.neoforge.tps.dimension.tooltip", "%s (Dimension Type: %s)",
                             dimension.dimension().location().toString(),
                             dimensionType.getRegisteredName()))));
 
-            component = Component.translatable("commands.neoforge.tps.dimension", dimensionName, tpsComponent, tickTimeComponent);
+            component = Component.translatableWithFallback("commands.neoforge.tps.dimension","%s: %s TPS (%s ms/tick)", dimensionName, tpsComponent, tickTimeComponent);
         }
 
-        return component.withStyle(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("commands.neoforge.tps.tooltip", tickRateManager.tickrate()))));
+        return component.withStyle(style -> style.withHoverEvent(
+                new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        Component.translatableWithFallback("commands.neoforge.tps.tooltip", "Mean TPS; higher is better. Target TPS: %s", tickRateManager.tickrate()))
+        ));
     }
 
     private static int calculateTPSColor(TickRateManager tickRateManager, double tps) {

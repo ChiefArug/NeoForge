@@ -24,7 +24,7 @@ public class GenerationBar implements AutoCloseable {
     private final ServerBossEvent bar;
 
     public GenerationBar() {
-        this.bar = new ServerBossEvent(Component.translatable("commands.neoforge.chunkgen.progress_bar_title"), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
+        this.bar = new ServerBossEvent(Component.translatableWithFallback("commands.neoforge.chunkgen.progress_bar_title", "Generating chunks..."), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
         this.bar.setPlayBossMusic(false);
         this.bar.setCreateWorldFog(false);
         this.bar.setDarkenScreen(false);
@@ -35,12 +35,12 @@ public class GenerationBar implements AutoCloseable {
 
         float percent = (float) count / total;
 
-        MutableComponent title = Component.translatable("commands.neoforge.chunkgen.progress_bar_progress", total)
-                .append(Component.translatable(PERCENT_FORMAT.format(percent * 100.0F) + "%")
+        MutableComponent title = Component.translatableWithFallback("commands.neoforge.chunkgen.progress_bar_progress", "Generating %1$s chunks - ", total)
+                .append(Component.literal(PERCENT_FORMAT.format(percent * 100.0F) + "%")
                         .setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 
         if (error > 0) {
-            title = title.append(Component.translatable("commands.neoforge.chunkgen.progress_bar_errors")
+            title = title.append(Component.translatableWithFallback("commands.neoforge.chunkgen.progress_bar_errors","(%1$s errors!)")
                     .setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
         }
 

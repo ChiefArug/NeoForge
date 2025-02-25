@@ -68,11 +68,11 @@ public class ConfigCommand {
                     fileComponent.withStyle((style) -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, f.getAbsolutePath())));
                 }
 
-                context.getSource().sendSuccess(() -> Component.translatable("commands.config.getwithtype",
+                context.getSource().sendSuccess(() -> Component.translatableWithFallback("commands.config.getwithtype", "Config for %s of type %s found at %s",
                         modId, type.toString(), fileComponent), true);
             }
             if (configFileNames.isEmpty()) {
-                context.getSource().sendSuccess(() -> Component.translatable("commands.config.noconfig", modId, type.toString()),
+                context.getSource().sendSuccess(() -> Component.translatableWithFallback("commands.config.noconfig", "Config for %s of type %s not found", modId, type.toString()),
                         true);
             }
             return 0;

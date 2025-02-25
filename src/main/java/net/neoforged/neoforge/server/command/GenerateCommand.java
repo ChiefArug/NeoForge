@@ -61,7 +61,7 @@ class GenerateCommand {
 
     private static int executeGeneration(CommandSourceStack source, BlockPos pos, int chunkRadius, boolean progressBar) {
         if (activeTask != null) {
-            source.sendSuccess(() -> Component.translatable("commands.neoforge.chunkgen.already_running"), true);
+            source.sendSuccess(() -> Component.translatableWithFallback("commands.neoforge.chunkgen.already_running", "Generation already running. Please execute '/neoforge generate stop' first and then you can start a new generation."), true);
             return Command.SINGLE_SUCCESS;
         }
 
@@ -78,7 +78,7 @@ class GenerateCommand {
             }
         }
 
-        source.sendSuccess(() -> Component.translatable("commands.neoforge.chunkgen.started",
+        source.sendSuccess(() -> Component.translatableWithFallback("commands.neoforge.chunkgen.started", "Generating %1$s chunks, in an area of %2$sx%3$s chunks (%4$sx%5$s blocks).",
                 activeTask.getTotalCount(), diameter, diameter, diameter * 16, diameter * 16), true);
 
         activeTask.run(createPregenListener(source));
@@ -94,7 +94,7 @@ class GenerateCommand {
             int total = activeTask.getTotalCount();
 
             double percent = (double) count / total * 100.0;
-            source.sendSuccess(() -> Component.translatable("commands.neoforge.chunkgen.stopped", count, total, percent), true);
+            source.sendSuccess(() -> Component.translatableWithFallback("commands.neoforge.chunkgen.stopped", "Generation stopped! %1$s out of %2$s chunks generated. (%3$s%%)", count, total, percent), true);
 
             if (generationBar != null) {
                 generationBar.close();
@@ -102,7 +102,7 @@ class GenerateCommand {
             }
             activeTask = null;
         } else {
-            source.sendSuccess(() -> Component.translatable("commands.neoforge.chunkgen.not_running"), false);
+            source.sendSuccess(() -> Component.translatableWithFallback("commands.neoforge.chunkgen.not_running", "No pregeneration currently running. Run `/neoforge generate help` to see commands for starting generation."), false);
         }
 
         return Command.SINGLE_SUCCESS;
@@ -114,16 +114,25 @@ class GenerateCommand {
             int total = activeTask.getTotalCount();
 
             double percent = (double) count / total * 100.0;
-            source.sendSuccess(() -> Component.translatable("commands.neoforge.chunkgen.status", count, total, percent), true);
+            source.sendSuccess(() -> Component.translatableWithFallback("commands.neoforge.chunkgen.status", "Generation status! %1$s out of %2$s chunks generated. (%3$s%%)", count, total, percent), true);
         } else {
-            source.sendSuccess(() -> Component.translatable("commands.neoforge.chunkgen.not_running"), false);
+            source.sendSuccess(() -> Component.translatableWithFallback("commands.neoforge.chunkgen.not_running", "No pregeneration currently running. Run `/neoforge generate help` to see commands for starting generation."), false);
         }
 
         return Command.SINGLE_SUCCESS;
     }
 
     private static int getGenerationHelp(CommandSourceStack source) {
-        source.sendSuccess(() -> Component.translatable("commands.neoforge.chunkgen.help_line"), false);
+        source.sendSuccess(() -> Component.translatableWithFallback(
+                "commands.neoforge.chunkgen.help_line",
+                """
+                §2/neoforge generate start <x> <y> <z> <chunkRadius> [progressBar] §r§f- Generates a square centered on the given position that is chunkRadius * 2 on each side.
+                §2/neoforge generate stop §r§f- Stops the current generation and displays progress that it had completed.
+                §2/neoforge generate status §r- Displays the progress completed for the currently running generation.
+                §2/neoforge generate help §r- Displays this message.
+                General tips: If running from a server console, you can run generate in different dimensions by using /execute in <dimension> neoforge generate...
+                """
+        ), false);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -138,10 +147,10 @@ class GenerateCommand {
 
             @Override
             public void complete(int error) {
-                source.sendSuccess(() -> Component.translatable("commands.neoforge.chunkgen.success"), true);
+                source.sendSuccess(() -> Component.translatableWithFallback("commands.neoforge.chunkgen.success", "Generation Done!"), true);
 
                 if (error > 0) {
-                    source.sendFailure(Component.translatable("commands.neoforge.chunkgen.error"));
+                    source.sendFailure(Component.translatableWithFallback("commands.neoforge.chunkgen.error", "Generation experienced %1$s errors! Check the log for more information."));
                 }
 
                 if (generationBar != null) {

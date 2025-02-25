@@ -26,7 +26,7 @@ import net.minecraft.network.chat.Component;
 
 public class EnumArgument<T extends Enum<T>> implements ArgumentType<T> {
     private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType(
-            (found, constants) -> Component.translatable("commands.neoforge.arguments.enum.invalid", constants, found));
+            (found, constants) -> Component.translatable("commands.neoforge.arguments.enum.invalid", "Enum constant must be one of %1$s, found %2$s", constants, found));
     private final Class<T> enumClass;
 
     public static <R extends Enum<R>> EnumArgument<R> enumArgument(Class<R> enumClass) {

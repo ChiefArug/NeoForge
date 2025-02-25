@@ -96,8 +96,8 @@ class DumpCommand {
                 filePathComponent.withStyle((style) -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, registryDumpFile.toString())));
             }
 
-            ctx.getSource().sendSuccess(() -> Component.translatable(
-                    "commands.neoforge.dump.success",
+            ctx.getSource().sendSuccess(() -> Component.translatableWithFallback(
+                    "commands.neoforge.dump.success","New file created with %s registry's contents is at %s",
                     Component.literal(registryKey.location().toString()).withStyle(ChatFormatting.YELLOW),
                     filePathComponent),
                     false);
@@ -106,8 +106,8 @@ class DumpCommand {
         } catch (Exception e) {
 
             ctx.getSource().sendFailure(
-                    Component.translatable(
-                            "commands.neoforge.dump.failure",
+                    Component.translatableWithFallback(
+                            "commands.neoforge.dump.failure", "Failed to create new file with %s registry's contents at %s",
                             Component.literal(registryKey.location().toString()).withStyle(ChatFormatting.YELLOW),
                             Component.literal(fileLocationForErrorReporting).withStyle(ChatFormatting.GOLD)));
 

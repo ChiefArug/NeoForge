@@ -97,7 +97,7 @@ class DumpCommand {
             }
 
             ctx.getSource().sendSuccess(() -> Component.translatableWithFallback(
-                    "commands.neoforge.dump.success","New file created with %s registry's contents is at %s",
+                    "commands.neoforge.dump.success", "New file created with %s registry's contents is at %s",
                     Component.literal(registryKey.location().toString()).withStyle(ChatFormatting.YELLOW),
                     filePathComponent),
                     false);

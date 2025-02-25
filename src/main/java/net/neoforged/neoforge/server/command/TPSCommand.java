@@ -83,13 +83,13 @@ class TPSCommand {
                             dimension.dimension().location().toString(),
                             dimensionType.getRegisteredName()))));
 
-            component = Component.translatableWithFallback("commands.neoforge.tps.dimension","%s: %s TPS (%s ms/tick)", dimensionName, tpsComponent, tickTimeComponent);
+            component = Component.translatableWithFallback("commands.neoforge.tps.dimension", "%s: %s TPS (%s ms/tick)", dimensionName, tpsComponent, tickTimeComponent);
         }
 
         return component.withStyle(style -> style.withHoverEvent(
                 new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        Component.translatableWithFallback("commands.neoforge.tps.tooltip", "Mean TPS; higher is better. Target TPS: %s", tickRateManager.tickrate()))
-        ));
+                        Component.translatableWithFallback("commands.neoforge.tps.tooltip", "Mean TPS; higher is better. Target TPS: %s",
+                                tickRateManager.tickrate()))));
     }
 
     private static int calculateTPSColor(TickRateManager tickRateManager, double tps) {

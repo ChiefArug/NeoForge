@@ -126,13 +126,12 @@ class GenerateCommand {
         source.sendSuccess(() -> Component.translatableWithFallback(
                 "commands.neoforge.chunkgen.help_line",
                 """
-                §2/neoforge generate start <x> <y> <z> <chunkRadius> [progressBar] §r§f- Generates a square centered on the given position that is chunkRadius * 2 on each side.
-                §2/neoforge generate stop §r§f- Stops the current generation and displays progress that it had completed.
-                §2/neoforge generate status §r- Displays the progress completed for the currently running generation.
-                §2/neoforge generate help §r- Displays this message.
-                General tips: If running from a server console, you can run generate in different dimensions by using /execute in <dimension> neoforge generate...
-                """
-        ), false);
+                        §2/neoforge generate start <x> <y> <z> <chunkRadius> [progressBar] §r§f- Generates a square centered on the given position that is chunkRadius * 2 on each side.
+                        §2/neoforge generate stop §r§f- Stops the current generation and displays progress that it had completed.
+                        §2/neoforge generate status §r- Displays the progress completed for the currently running generation.
+                        §2/neoforge generate help §r- Displays this message.
+                        General tips: If running from a server console, you can run generate in different dimensions by using /execute in <dimension> neoforge generate...
+                        """), false);
         return Command.SINGLE_SUCCESS;
     }
 

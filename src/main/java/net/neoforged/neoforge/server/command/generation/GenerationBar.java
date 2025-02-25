@@ -40,7 +40,7 @@ public class GenerationBar implements AutoCloseable {
                         .setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 
         if (error > 0) {
-            title = title.append(Component.translatableWithFallback("commands.neoforge.chunkgen.progress_bar_errors","(%1$s errors!)")
+            title = title.append(Component.translatableWithFallback("commands.neoforge.chunkgen.progress_bar_errors", "(%1$s errors!)")
                     .setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
         }
 

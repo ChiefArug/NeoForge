@@ -38,6 +38,7 @@ public class ConditionalOps<T> extends RegistryOps<T> {
      * Returns a codec that can retrieve a {@link ICondition.IContext} from a registry ops,
      * for example with {@code retrieveContext().decode(ops, ops.emptyMap())}.
      */
+    @Deprecated
     public static MapCodec<ICondition.IContext> retrieveContext() {
         return ExtraCodecs.retrieveContext(ops -> {
             if (!(ops instanceof ConditionalOps<?> conditionalOps))

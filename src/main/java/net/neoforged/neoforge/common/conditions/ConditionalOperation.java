@@ -1,12 +1,21 @@
 package net.neoforged.neoforge.common.conditions;
 
 import com.mojang.datafixers.kinds.App;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
+
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.DelegatingOps;
 import net.minecraft.resources.RegistryOps;
@@ -24,22 +33,78 @@ public abstract class ConditionalOperation<T> implements InterceptingOps.Wrapped
     public static final String TYPE_KEY = "neoforge:conditional_operation_type";
 
     public static <T> InterceptingOps<T, ICondition.IContext> getOps(RegistryOps<T> ops, Supplier<ICondition.IContext> contextSupplier) {
-        return new InterceptingOps<>(ops, NeoForgeRegistries.CONDITIONAL_OPERATION_CODECS.byNameCodec().<ConditionalOperation<T>>dispatch(TYPE_KEY, ConditionalOperation::getCodecCache, codecCache -> codecCache.getFromCache(ops)), contextSupplier);
+        return new InterceptingOps<>(ops, makeCodec(ops), contextSupplier);
     }
 
     public static <T> InterceptingOps<T, ICondition.IContext> getOps(DynamicOps<T> ops, RegistryOps.RegistryInfoLookup regInfo, Supplier<ICondition.IContext> contextSupplier) {
-        return new InterceptingOps<>(ops, regInfo, NeoForgeRegistries.CONDITIONAL_OPERATION_CODECS.byNameCodec().<ConditionalOperation<T>>dispatch(TYPE_KEY, ConditionalOperation::getCodecCache, codecCache -> codecCache.getFromCache(ops)), contextSupplier);
+        return new InterceptingOps<>(ops, regInfo, makeCodec(ops), contextSupplier);
     }
 
     public static <T> InterceptingOps<T, ICondition.IContext> getOps(DynamicOps<T> ops, HolderLookup.Provider registryAccess, Supplier<ICondition.IContext> contextSupplier) {
-        return new InterceptingOps<>(ops, registryAccess, NeoForgeRegistries.CONDITIONAL_OPERATION_CODECS.byNameCodec().<ConditionalOperation<T>>dispatch(TYPE_KEY, ConditionalOperation::getCodecCache, codecCache -> codecCache.getFromCache(ops)), contextSupplier);
+        return new InterceptingOps<>(ops, registryAccess, makeCodec(ops), contextSupplier);
     }
 
+    protected static <T extends ConditionalOperation<?>> App<RecordCodecBuilder.Mu<T>, List<ICondition>> conditionList() {
+        return ICondition.LIST_CODEC.fieldOf(CONDITIONS_KEY).forGetter(ConditionalOperation::getConditions);
+    }
+
+    protected static <T> Codec<T> typedPassThrough(DynamicOps<T> ops) {
+        return Codec.PASSTHROUGH.xmap(x -> x.cast(ops), x -> new Dynamic<>(ops, x));
+    }
+
+    private static final ConditionalOperationCodecCache BACKWARD_COMPAT_CODEC = new ConditionalOperationCodecCache(ConditionalOperation::makeBackwardCompatCodec);
+    private static <T> MapCodec<? extends ConditionalOperation<T>> makeBackwardCompatCodec(DynamicOps<T> ops) {
+        return MapCodec.assumeMapUnsafe(Codec.PASSTHROUGH).xmap(dyn -> {
+            List<String> keysToRemove = new ArrayList<>();
+            var mapish = dyn.asMapOpt().flatMap(outerStream -> {
+                List<DataResult<?>> errors = new ArrayList<>();
+                var newOuter = outerStream.map(outer -> Pair.of(outer.getFirst().asString(""), outer.getSecond())).map(outer -> {
+                    String outerKey = outer.getFirst();
+                    var outerValue = outer.getSecond().asMapOpt();
+                    outerValue.map(innerStream -> {
+                        innerStream.map(inner -> Pair.of(inner.getFirst().asString(""), inner.getSecond()))
+                                .filter(inner -> {
+                                    String innerKey = inner.getFirst();
+                                    boolean hasConditions = OLD_CONDITIONS_KEY.equals(inner.getFirst());
+                                    if (!hasConditions) return true;
+                                    var innerValue = inner.getSecond().asList(ICondition.CODEC::parse);
+                                    //noinspection deprecation
+                                    ICondition.IContext context = ConditionalOps.retrieveContext().codec().decode(ops, ops.emptyMap()).map(Pair::getFirst).getOrThrow();
+                                    innerValue.stream().filter(dr -> {
+                                        if (dr.isError()) {
+                                            errors.add(dr);
+                                            return false;
+                                        }
+                                        return true;
+                                    }).forEach(dr -> {
+
+                                        if (dr.getOrThrow().test(context)) {
+
+                                        }
+                                    });
+                                })
+                                .findFirst().ifPresent(pair42 -> {
+                                    keysToRemove.add(pair42.getFirst());
+                                });
+                        return;
+                    });
+                    return;
+                });
+                return;
+            });
+            mapish = mapish;
+        }, Function.identity()));
+    }
+
+    private static <T> Codec<? extends ConditionalOperation<T>> makeCodec(DynamicOps<T> ops) {
+        return NeoForgeRegistries.CONDITIONAL_OPERATION_CODECS.byNameCodec().<ConditionalOperation<T>>dispatch(TYPE_KEY, ConditionalOperation::getCodecCache, codecCache -> codecCache.getFromCache(ops));
+    }
     /**
      * The raw ops for the type T. DO NOT expect this to be any sort of ops with extra data such as a RegistryOps.
      * It should only be used for manipulating {@link T}
      */
     protected final DynamicOps<T> ops;
+
     protected final List<ICondition> conditions;
 
     public ConditionalOperation(DynamicOps<T> ops, List<ICondition> conditions) {
@@ -70,13 +135,5 @@ public abstract class ConditionalOperation<T> implements InterceptingOps.Wrapped
     @Override
     public T unwrap(ICondition.IContext context) {
         return conditions.stream().allMatch(condition -> condition.test(context)) ? getSuccess() : getFail();
-    }
-
-    protected static <T extends ConditionalOperation<?>> App<RecordCodecBuilder.Mu<T>, List<ICondition>> conditionList() {
-        return ICondition.LIST_CODEC.fieldOf(CONDITIONS_KEY).forGetter(ConditionalOperation::getConditions);
-    }
-
-    protected static <T> Codec<T> typedPassThrough(DynamicOps<T> ops) {
-        return Codec.PASSTHROUGH.xmap(x -> x.cast(ops), x -> new Dynamic<>(ops, x));
     }
 }

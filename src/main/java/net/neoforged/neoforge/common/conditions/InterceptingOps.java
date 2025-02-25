@@ -41,7 +41,6 @@ public class InterceptingOps<T, C> extends RegistryOps<T> {
      */
     public InterceptingOps(DynamicOps<T> delegate, RegistryOps.RegistryInfoLookup lookupProvider, Codec<? extends Wrapped<T, C>> wrapperCodec, Supplier<C> context) {
         super(delegate, lookupProvider);
-        if (delegate instanceof InterceptingOps<?, ?>) LOGGER.warn("Are you sure this is a good idea?");
         this.wrapperCodec = wrapperCodec;
         this.context = context;
     }
